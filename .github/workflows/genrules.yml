@@ -1,0 +1,50 @@
+name: Build affix rules
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 512
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
+      - name: Report free space
+        run: |
+          echo "Free space:"
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Ispell
+        run: |
+          sudo apt-get update && sudo apt-get install crystal ispell zstd lz4 -y
+          crystal build --release --static hunaftool.rb
+          make
+          time ./hunaftool be_BY@tarask.aff be_BY@tarask.dic words.txt
+
+      - name: Use the 'findaffix' tool from Ispell to find possible prefixes and suffixes
+        run: |
+          make
+          export PATH=.:$PATH
+          export TEMPDIR=.
+          export TMPDIR=.
+          iconv -f utf-8 -t words.txt > words.txt.cp1251
+          findaffix -s -e 2 -m 1 words.txt.cp1251 | head -n 1000000 > words_suffixes.txt.cp1251
+          iconv -f cp1251 -t utf-8 words_suffixes.txt.cp1251 > words_suffixes.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dict_be_words
+          path: |
+            words.txt
+            words_suffixes.txt
+            words_prefixes.txt
