@@ -37,7 +37,7 @@ jobs:
           export TEMPDIR=.
           export TMPDIR=.
           iconv -f utf-8 -t cp1251 words.txt > words.txt.cp1251
-          findaffix -s -e 2 -m 1 words.txt.cp1251 | head -n 1000000 > words_suffixes.txt.cp1251
+          findaffix -s -e 2 -m 2 words.txt.cp1251 | head -n 1000000 > words_suffixes.txt.cp1251
           iconv -f cp1251 -t utf-8 words_suffixes.txt.cp1251 > words_suffixes.txt
 
       - uses: actions/upload-artifact@v4
