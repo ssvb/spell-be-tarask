@@ -1,0 +1,85 @@
+name: linux
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: benchmark
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install the necessary packages
+        run: |
+          sudo apt-get update && sudo apt-get install g++ ruby crystal hyperfine heaptrack hunspell nuspell zip gawk -y
+
+      - name: Run benchmarks
+        run: |
+          mkdir out
+          cat /proc/cpuinfo | tee out/cpuinfo.txt
+          hunspell --version | tee out/versions.txt
+          nuspell --version | tee -a out/versions.txt
+          crystal --version | tee -a out/versions.txt
+          make dict
+          wget https://raw.githubusercontent.com/hunspell/hunspell/8900268aaf68b18031e103c09dc8355725ed546d/src/tools/affixcompress
+          chmod +x affixcompress
+          wget https://raw.githubusercontent.com/ssvb/hunaftool/b5d8f3b59c81f42676662b775ef5877429e1dc15/hunaftool.rb
+          time crystal build --release --static hunaftool.rb
+          cp be_BY@tarask.aff be_BY.aff
+          cp be_BY@tarask.dic be_BY.dic
+          echo "=== Decode the wordlist ==="
+          time ./hunaftool be_BY.aff be_BY.dic wordlist.txt
+          echo "=== Preparing a reencoded dictionary ==="
+          time ./hunaftool be_BY.aff be_BY.dic be_BY-reenc.aff
+          time ./hunaftool be_BY-reenc.aff wordlist.txt be_BY-reenc.dic
+          echo "=== Prepare an uncompressed dictionary ==="
+          grep -v -E "^[SP]FX" be_BY.aff > be_BY-unp.aff
+          cat wordlist.txt | wc -l > be_BY-unp.dic
+          cat wordlist.txt >> be_BY-unp.dic
+
+          echo "=== Preparing an affixcompress dictionary ==="
+          cp be_BY-unp.aff be_BY-affixcompress.aff
+          ./affixcompress wordlist.txt 2>/dev/null >/dev/null
+          cat wordlist.txt.aff >> be_BY-affixcompress.aff
+          rm wordlist.txt.aff
+          mv wordlist.txt.dic be_BY-affixcompress.dic
+          echo "=== Preparing an affixcompress optimized dictionary ==="
+          time ./hunaftool be_BY-affixcompress.aff be_BY-affixcompress.dic be_BY-affixcompress-reenc.aff
+          time ./hunaftool be_BY-affixcompress-reenc.aff wordlist.txt be_BY-affixcompress-reenc.dic
+          echo "=== Preparing 8-bit CP1251 variants ==="
+          cat be_BY-unp.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY-unp-8bit.aff
+          cat be_BY-unp.dic | iconv -t CP1251 > be_BY-unp-8bit.dic
+          cat be_BY-reenc.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY-reenc-8bit.aff
+          cat be_BY-reenc.dic | iconv -t CP1251 > be_BY-reenc-8bit.dic
+          cat be_BY-affixcompress-reenc.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY-affixcompress-reenc-8bit.aff
+          cat be_BY-affixcompress-reenc.dic | iconv -t CP1251 > be_BY-affixcompress-reenc-8bit.dic
+          echo "=== Benchmark ==="
+          ruby heaptrack_and_hyperfine.rb \
+                    "hunspell -d be_BY-unp -l wordlist.txt" \
+                    "hunspell -d be_BY-unp-8bit -l wordlist.txt" \
+                    "hunspell -d be_BY -l wordlist.txt" \
+                    "hunspell -d be_BY-reenc -l wordlist.txt" \
+                    "hunspell -d be_BY-reenc-8bit -l wordlist.txt" \
+                    "hunspell -d be_BY-affixcompress -l wordlist.txt" \
+                    "hunspell -d be_BY-affixcompress-reenc -l wordlist.txt" \
+                    "hunspell -d be_BY-affixcompress-reenc-8bit -l wordlist.txt" \
+                    "nuspell -d be_BY-unp wordlist.txt" \
+                    "nuspell -d be_BY-unp-8bit wordlist.txt" \
+                    "nuspell -d be_BY wordlist.txt" \
+                    "nuspell -d be_BY-reenc wordlist.txt" \
+                    "nuspell -d be_BY-reenc-8bit wordlist.txt" \
+                    "nuspell -d be_BY-affixcompress wordlist.txt" \
+                    "nuspell -d be_BY-affixcompress-reenc wordlist.txt" \
+                    "nuspell -d be_BY-affixcompress-reenc-8bit wordlist.txt" \
+                    | tee out/benchmark.md
+          cp *.aff out
+          cp *.dic out
+          cp wordlist.txt out
+          zip -rq results.zip out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-spell-be-tarask
+          path: results.zip
