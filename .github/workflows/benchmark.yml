@@ -1,0 +1,64 @@
+name: linux
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: benchmark
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install the necessary packages
+        run: |
+          sudo apt-get update && sudo apt-get install ruby crystal hyperfine heaptrack hunspell zip gawk -y
+
+      - name: Run benchmarks
+        run: |
+          mkdir out
+          cat /proc/cpuinfo
+          cat /proc/cpuinfo > out/cpuinfo.txt
+          crystal --version
+          make dict
+          wget https://raw.githubusercontent.com/hunspell/hunspell/8900268aaf68b18031e103c09dc8355725ed546d/src/tools/affixcompress
+          chmod +x affixcompress
+          wget https://raw.githubusercontent.com/ssvb/hunaftool/b5d8f3b59c81f42676662b775ef5877429e1dc15/hunaftool.rb
+          time crystal build --release --static hunaftool.rb
+          time ./hunaftool be_BY@tarask.aff be_BY@tarask.dic be_BY@tarask.txt
+          echo "=== Preparing an optimized dictionary ==="
+          time ./hunaftool be_BY@tarask.aff be_BY@tarask.dic be_BY@tarask-opt.aff
+          time ./hunaftool -v be_BY@tarask-opt.aff be_BY@tarask.txt be_BY@tarask-opt.dic
+          echo "=== Preparing an uncompressed dictionary ==="
+          cat be_BY@tarask.txt | wc -l > be_BY@tarask-unp.dic
+          cat be_BY@tarask.txt >> be_BY@tarask-unp.dic
+          echo "SET UTF-8" > be_BY@tarask-unp.aff
+          echo "WORDCHARS '’ʼ" >> be_BY@tarask-unp.aff
+          echo "=== Preparing an affixcompress dictionary ==="
+          cp be_BY@tarask-unp.aff be_BY@tarask-affixcompress.aff
+          ./affixcompress be_BY@tarask.txt 2>&1 > /dev/null
+          cat be_BY@tarask.txt.aff >> be_BY@tarask-affixcompress.aff
+          rm be_BY@tarask.txt.aff
+          mv be_BY@tarask.txt.dic be_BY@tarask-affixcompress.dic
+          echo "=== Measuring the memory footprint ==="
+          ruby heapusage.rb be_BY@tarask-unp be_BY@tarask.txt > out/memusage.txt
+          ruby heapusage.rb be_BY@tarask be_BY@tarask.txt >> out/memusage.txt
+          ruby heapusage.rb be_BY@tarask-opt be_BY@tarask.txt >> out/memusage.txt
+          ruby heapusage.rb be_BY@tarask-affixcompress be_BY@tarask.txt >> out/memusage.txt
+          echo "=== Measuring spellchecking performance ==="
+          hyperfine --export-markdown out/benchmark.md \
+                    --warmup 1 \
+                    'hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
+                    'hunspell -d be_BY@tarask -l be_BY@tarask.txt' \
+                    'hunspell -d be_BY@tarask-opt -l be_BY@tarask.txt' \
+                    'hunspell -d be_BY@tarask-affixcompress -l be_BY@tarask.txt'
+          cp *.aff out
+          cp *.dic out
+          cp be_BY@tarask.txt out
+          zip -rq results.zip out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-spell-be-tarask
+          path: results.zip
