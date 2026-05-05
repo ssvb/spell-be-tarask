@@ -36,6 +36,19 @@ jobs:
           cat be_BY@tarask.txt >> be_BY@tarask-unp.dic
           echo "SET UTF-8" > be_BY@tarask-unp.aff
           echo "WORDCHARS '’ʼ" >> be_BY@tarask-unp.aff
+          echo "ICONV 12" >> be_BY@tarask-unp.aff
+          echo "ICONV ’ '" >> be_BY@tarask-unp.aff
+          echo "ICONV ʼ '" >> be_BY@tarask-unp.aff
+          echo "ICONV а́ а" >> be_BY@tarask-unp.aff
+          echo "ICONV о́ о" >> be_BY@tarask-unp.aff
+          echo "ICONV у́ у" >> be_BY@tarask-unp.aff
+          echo "ICONV ы́ ы" >> be_BY@tarask-unp.aff
+          echo "ICONV э́ э" >> be_BY@tarask-unp.aff
+          echo "ICONV і́ і" >> be_BY@tarask-unp.aff
+          echo "ICONV е́ е" >> be_BY@tarask-unp.aff
+          echo "ICONV ё́ ё" >> be_BY@tarask-unp.aff
+          echo "ICONV ю́ ю" >> be_BY@tarask-unp.aff
+          echo "ICONV я́ я" >> be_BY@tarask-unp.aff
           echo "=== Preparing an affixcompress dictionary ==="
           cp be_BY@tarask-unp.aff be_BY@tarask-affixcompress.aff
           ./affixcompress be_BY@tarask.txt 2>&1 > /dev/null
