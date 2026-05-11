@@ -65,8 +65,8 @@ jobs:
           time ./hunaftool be_BY@tarask-affixcompress.aff be_BY@tarask-affixcompress.dic be_BY@tarask-affixcompress-reenc.aff
           time ./hunaftool -v be_BY@tarask-affixcompress-reenc.aff be_BY@tarask.txt be_BY@tarask-affixcompress-reenc.dic
           echo "=== Measuring the memory footprint ==="
-          ruby heapusage.rb -d be_BY@tarask-unp be_BY@tarask.txt > out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-unp be_BY@tarask.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY@tarask-unp be_BY@tarask.txt > out/heapusage.txt
+          ruby heapusage.rb -d be_BY@tarask-unp be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb be_BY@tarask-unp-cp1251 be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb be_BY@tarask be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb be_BY@tarask-cp1251 be_BY@tarask.txt >> out/heapusage.txt
@@ -83,8 +83,8 @@ jobs:
           echo "=== Measuring spellchecking performance ==="
           hyperfine --export-markdown out/benchmark.md \
                     --warmup 1 \
-                    './dumbspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
+                    './dumbspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-unp-cp1251 -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-cp1251 -l be_BY@tarask.txt' \
