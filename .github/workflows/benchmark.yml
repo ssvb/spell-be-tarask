@@ -83,10 +83,11 @@ jobs:
           echo "=== Measuring spellchecking performance ==="
           hyperfine --export-markdown out/benchmark.md \
                     --warmup 1 \
+                    --reference \
                     'hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
                     './dumbspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-unp-cp1251 -l be_BY@tarask.txt' \
-                    --reference 'hunspell -d be_BY@tarask -l be_BY@tarask.txt' \
+                    'hunspell -d be_BY@tarask -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-cp1251 -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-reenc -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-affixcompress -l be_BY@tarask.txt' \
