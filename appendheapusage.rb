@@ -5,6 +5,6 @@ mu = File.open(ARGV[1])
 puts md.gets.strip + " Heap usage |"
 puts md.gets.strip + "---:|"
 while (l = md.gets)
-  abort "xyz" unless mu.gets =~ /^Peak heap usage: (\S+)/
+  abort "incomplete heap usage result\n" unless mu.gets =~ /^Peak heap usage: (\S+)/
   puts l.strip + " #{$1} |"
 end
