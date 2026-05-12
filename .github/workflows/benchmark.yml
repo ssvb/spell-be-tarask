@@ -51,10 +51,10 @@ jobs:
           echo "ICONV ю́ ю" >> be_BY@tarask-unp.aff
           echo "ICONV я́ я" >> be_BY@tarask-unp.aff
           echo "=== Preparing 8-bit CP1251 variants ==="
-          cat be_BY@tarask-unp.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY@tarask-unp-cp1251.aff
-          cat be_BY@tarask-unp.dic | iconv -t CP1251 > be_BY@tarask-unp-cp1251.dic
-          cat be_BY@tarask.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY@tarask-cp1251.aff
-          cat be_BY@tarask.dic | iconv -t CP1251 > be_BY@tarask-cp1251.dic
+          cat be_BY@tarask-unp.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY@tarask-unp-8bit.aff
+          cat be_BY@tarask-unp.dic | iconv -t CP1251 > be_BY@tarask-unp-8bit.dic
+          cat be_BY@tarask.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY@tarask-8bit.aff
+          cat be_BY@tarask.dic | iconv -t CP1251 > be_BY@tarask-8bit.dic
           echo "=== Preparing an affixcompress dictionary ==="
           cp be_BY@tarask-unp.aff be_BY@tarask-affixcompress.aff
           ./affixcompress be_BY@tarask.txt 10000 2>&1 > /dev/null
@@ -65,37 +65,37 @@ jobs:
           time ./hunaftool be_BY@tarask-affixcompress.aff be_BY@tarask-affixcompress.dic be_BY@tarask-affixcompress-reenc.aff
           time ./hunaftool -v be_BY@tarask-affixcompress-reenc.aff be_BY@tarask.txt be_BY@tarask-affixcompress-reenc.dic
           echo "=== Measuring the memory footprint ==="
-          ruby heapusage.rb be_BY@tarask-unp be_BY@tarask.txt > out/heapusage.txt
-          ruby heapusage.rb -d be_BY@tarask-unp be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-unp-cp1251 be_BY@tarask.txt >> out/heapusage.txt
+          ruby heapusage.rb -d be_BY@tarask-unp be_BY@tarask.txt > out/heapusage.txt
+          ruby heapusage.rb be_BY@tarask-unp be_BY@tarask.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY@tarask-unp-8bit be_BY@tarask.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY@tarask-8bit be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb be_BY@tarask be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-cp1251 be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb be_BY@tarask-reenc be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb be_BY@tarask-affixcompress be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb be_BY@tarask-affixcompress-reenc be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb -n be_BY@tarask-unp be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask-unp-cp1251 be_BY@tarask.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY@tarask-unp-8bit be_BY@tarask.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY@tarask-8bit be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb -n be_BY@tarask be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask-cp1251 be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb -n be_BY@tarask-reenc be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb -n be_BY@tarask-affixcompress be_BY@tarask.txt >> out/heapusage.txt
           ruby heapusage.rb -n be_BY@tarask-affixcompress-reenc be_BY@tarask.txt >> out/heapusage.txt
           echo "=== Measuring spellchecking performance ==="
           hyperfine --export-markdown out/benchmark.md \
                     --warmup 1 \
-                    --reference \
-                    'hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
+                    --reference 'hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
                     './dumbspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
-                    'hunspell -d be_BY@tarask-unp-cp1251 -l be_BY@tarask.txt' \
+                    'hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt' \
+                    'hunspell -d be_BY@tarask-unp-8bit -l be_BY@tarask.txt' \
+                    'hunspell -d be_BY@tarask-8bit -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask -l be_BY@tarask.txt' \
-                    'hunspell -d be_BY@tarask-cp1251 -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-reenc -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-affixcompress -l be_BY@tarask.txt' \
                     'hunspell -d be_BY@tarask-affixcompress-reenc -l be_BY@tarask.txt' \
                     'nuspell -d be_BY@tarask-unp be_BY@tarask.txt' \
-                    'nuspell -d be_BY@tarask-unp-cp1251 be_BY@tarask.txt' \
+                    'nuspell -d be_BY@tarask-unp-8bit be_BY@tarask.txt' \
+                    'nuspell -d be_BY@tarask-8bit be_BY@tarask.txt' \
                     'nuspell -d be_BY@tarask be_BY@tarask.txt' \
-                    'nuspell -d be_BY@tarask-cp1251 be_BY@tarask.txt' \
                     'nuspell -d be_BY@tarask-reenc be_BY@tarask.txt' \
                     'nuspell -d be_BY@tarask-affixcompress be_BY@tarask.txt' \
                     'nuspell -d be_BY@tarask-affixcompress-reenc be_BY@tarask.txt'
