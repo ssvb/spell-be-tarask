@@ -14,7 +14,7 @@ jobs:
 
       - name: Install the necessary packages
         run: |
-          sudo apt-get update && sudo apt-get install g++ ruby crystal hyperfine heaptrack hunspell nuspell zip gawk -y
+          sudo apt-get update && sudo apt-get install ruby crystal hyperfine heaptrack hunspell nuspell zip gawk -y
 
       - name: Run benchmarks
         run: |
@@ -39,7 +39,6 @@ jobs:
           grep -v -E "^[SP]FX" be_BY.aff > be_BY-unp.aff
           cat wordlist.txt | wc -l > be_BY-unp.dic
           cat wordlist.txt >> be_BY-unp.dic
-
           echo "=== Preparing an affixcompress dictionary ==="
           cp be_BY-unp.aff be_BY-affixcompress.aff
           ./affixcompress wordlist.txt 2>/dev/null >/dev/null

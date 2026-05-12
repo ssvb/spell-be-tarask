@@ -25,6 +25,7 @@ tmp = Tempfile.new
 system("hyperfine --export-markdown #{tmp.path.shellescape} --warmup 1 #{ARGV.shelljoin}")
 
 puts
+puts "CPU: #{$1}\n" if File.read("/proc/cpuinfo") =~ /model name\s+: (.*$)/
 
 md = File.open(tmp.path)
 puts md.gets.strip + " Peak heap usage | Peak RSS |"
