@@ -85,7 +85,7 @@ jobs:
           hyperfine --export-markdown out/benchmark.md \
                     --warmup 1 \
                     "./dumbspell -d be_BY@tarask-unp -l be_BY@tarask.txt" \
-                    "--reference" "hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt" \
+                    "--reference=hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt" \
                     "hunspell -d be_BY@tarask-unp-8bit -l be_BY@tarask.txt" \
                     "hunspell -d be_BY@tarask-8bit -l be_BY@tarask.txt" \
                     "hunspell -d be_BY@tarask -l be_BY@tarask.txt" \
