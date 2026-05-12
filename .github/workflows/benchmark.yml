@@ -22,6 +22,10 @@ jobs:
           mkdir out
           cat /proc/cpuinfo
           cat /proc/cpuinfo > out/cpuinfo.txt
+          hunspell --version
+          nuspell --version
+          hunspell --version > out/versions.txt
+          nuspell --version >> out/versions.txt
           crystal --version
           make dict
           wget https://raw.githubusercontent.com/hunspell/hunspell/8900268aaf68b18031e103c09dc8355725ed546d/src/tools/affixcompress
