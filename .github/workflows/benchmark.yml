@@ -32,83 +32,92 @@ jobs:
           chmod +x affixcompress
           wget https://raw.githubusercontent.com/ssvb/hunaftool/b5d8f3b59c81f42676662b775ef5877429e1dc15/hunaftool.rb
           time crystal build --release --static hunaftool.rb
-          time ./hunaftool be_BY@tarask.aff be_BY@tarask.dic be_BY@tarask.txt
+          cp be_BY@tarask.aff be_BY.aff
+          cp be_BY@tarask.dic be_BY.dic
+          time ./hunaftool be_BY.aff be_BY.dic wordlist.txt
           echo "=== Preparing an optimized dictionary ==="
-          time ./hunaftool be_BY@tarask.aff be_BY@tarask.dic be_BY@tarask-reenc.aff
-          time ./hunaftool -v be_BY@tarask-reenc.aff be_BY@tarask.txt be_BY@tarask-reenc.dic
+          time ./hunaftool be_BY.aff be_BY.dic be_BY-reenc.aff
+          time ./hunaftool -v be_BY-reenc.aff wordlist.txt be_BY-reenc.dic
           echo "=== Preparing an uncompressed dictionary ==="
-          cat be_BY@tarask.txt | wc -l > be_BY@tarask-unp.dic
-          cat be_BY@tarask.txt >> be_BY@tarask-unp.dic
-          echo "SET UTF-8" > be_BY@tarask-unp.aff
-          echo "WORDCHARS '’ʼ" >> be_BY@tarask-unp.aff
-          echo "ICONV 12" >> be_BY@tarask-unp.aff
-          echo "ICONV ’ '" >> be_BY@tarask-unp.aff
-          echo "ICONV ʼ '" >> be_BY@tarask-unp.aff
-          echo "ICONV а́ а" >> be_BY@tarask-unp.aff
-          echo "ICONV о́ о" >> be_BY@tarask-unp.aff
-          echo "ICONV у́ у" >> be_BY@tarask-unp.aff
-          echo "ICONV ы́ ы" >> be_BY@tarask-unp.aff
-          echo "ICONV э́ э" >> be_BY@tarask-unp.aff
-          echo "ICONV і́ і" >> be_BY@tarask-unp.aff
-          echo "ICONV е́ е" >> be_BY@tarask-unp.aff
-          echo "ICONV ё́ ё" >> be_BY@tarask-unp.aff
-          echo "ICONV ю́ ю" >> be_BY@tarask-unp.aff
-          echo "ICONV я́ я" >> be_BY@tarask-unp.aff
-          echo "=== Preparing 8-bit CP1251 variants ==="
-          cat be_BY@tarask-unp.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY@tarask-unp-8bit.aff
-          cat be_BY@tarask-unp.dic | iconv -t CP1251 > be_BY@tarask-unp-8bit.dic
-          cat be_BY@tarask.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY@tarask-8bit.aff
-          cat be_BY@tarask.dic | iconv -t CP1251 > be_BY@tarask-8bit.dic
+          cat wordlist.txt | wc -l > be_BY-unp.dic
+          cat wordlist.txt >> be_BY-unp.dic
+          echo "SET UTF-8" > be_BY-unp.aff
+          echo "WORDCHARS '’ʼ" >> be_BY-unp.aff
+          echo "ICONV 12" >> be_BY-unp.aff
+          echo "ICONV ’ '" >> be_BY-unp.aff
+          echo "ICONV ʼ '" >> be_BY-unp.aff
+          echo "ICONV а́ а" >> be_BY-unp.aff
+          echo "ICONV о́ о" >> be_BY-unp.aff
+          echo "ICONV у́ у" >> be_BY-unp.aff
+          echo "ICONV ы́ ы" >> be_BY-unp.aff
+          echo "ICONV э́ э" >> be_BY-unp.aff
+          echo "ICONV і́ і" >> be_BY-unp.aff
+          echo "ICONV е́ е" >> be_BY-unp.aff
+          echo "ICONV ё́ ё" >> be_BY-unp.aff
+          echo "ICONV ю́ ю" >> be_BY-unp.aff
+          echo "ICONV я́ я" >> be_BY-unp.aff
           echo "=== Preparing an affixcompress dictionary ==="
-          cp be_BY@tarask-unp.aff be_BY@tarask-affixcompress.aff
-          ./affixcompress be_BY@tarask.txt 10000 2>/dev/null >/dev/null
-          cat be_BY@tarask.txt.aff >> be_BY@tarask-affixcompress.aff
-          rm be_BY@tarask.txt.aff
-          mv be_BY@tarask.txt.dic be_BY@tarask-affixcompress.dic
+          cp be_BY-unp.aff be_BY-affixcompress.aff
+          ./affixcompress wordlist.txt 10000 2>/dev/null >/dev/null
+          cat wordlist.txt.aff >> be_BY-affixcompress.aff
+          rm wordlist.txt.aff
+          mv wordlist.txt.dic be_BY-affixcompress.dic
           echo "=== Preparing an affixcompress optimized dictionary ==="
-          time ./hunaftool be_BY@tarask-affixcompress.aff be_BY@tarask-affixcompress.dic be_BY@tarask-affixcompress-reenc.aff
-          time ./hunaftool -v be_BY@tarask-affixcompress-reenc.aff be_BY@tarask.txt be_BY@tarask-affixcompress-reenc.dic
+          time ./hunaftool be_BY-affixcompress.aff be_BY-affixcompress.dic be_BY-affixcompress-reenc.aff
+          time ./hunaftool -v be_BY-affixcompress-reenc.aff wordlist.txt be_BY-affixcompress-reenc.dic
+          echo "=== Preparing 8-bit CP1251 variants ==="
+          cat be_BY-unp.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY-unp-8bit.aff
+          cat be_BY-unp.dic | iconv -t CP1251 > be_BY-unp-8bit.dic
+          cat be_BY-reenc.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY-reenc-8bit.aff
+          cat be_BY-reenc.dic | iconv -t CP1251 > be_BY-reenc-8bit.dic
+          cat be_BY-affixcompress-reenc.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY-affixcompress-reenc-8bit.aff
+          cat be_BY-affixcompress-reenc.dic | iconv -t CP1251 > be_BY-affixcompress-reenc-8bit.dic
           echo "=== Measuring the memory footprint ==="
-          ruby heapusage.rb -d be_BY@tarask-unp be_BY@tarask.txt > out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-unp be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-unp-8bit be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-8bit be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-reenc be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-affixcompress be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY@tarask-affixcompress-reenc be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask-unp be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask-unp-8bit be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask-8bit be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask-reenc be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask-affixcompress be_BY@tarask.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY@tarask-affixcompress-reenc be_BY@tarask.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY-unp wordlist.txt > out/heapusage.txt
+          ruby heapusage.rb be_BY-unp-8bit wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY-reenc wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY-reenc-8bit wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY-affixcompress wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY-affixcompress-reenc wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb be_BY-affixcompress-reenc-8bit wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY-unp wordlist.txt > out/heapusage.txt
+          ruby heapusage.rb -n be_BY-unp-8bit wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY-reenc wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY-reenc-8bit wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY-affixcompress wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY-affixcompress-reenc wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb -n be_BY-affixcompress-reenc-8bit wordlist.txt >> out/heapusage.txt
+          ruby heapusage.rb -d be_BY-unp wordlist.txt >> out/heapusage.txt
           echo "=== Measuring spellchecking performance ==="
           hyperfine --version
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
           tar -xzf hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
           ./hyperfine-v1.20.0-x86_64-unknown-linux-gnu/hyperfine --export-markdown out/benchmark.md \
                     --warmup 1 \
-                    "./dumbspell -d be_BY@tarask-unp -l be_BY@tarask.txt" \
-                    --reference "hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt" \
-                    "hunspell -d be_BY@tarask-unp-8bit -l be_BY@tarask.txt" \
-                    "hunspell -d be_BY@tarask-8bit -l be_BY@tarask.txt" \
-                    "hunspell -d be_BY@tarask -l be_BY@tarask.txt" \
-                    "hunspell -d be_BY@tarask-reenc -l be_BY@tarask.txt" \
-                    "hunspell -d be_BY@tarask-affixcompress -l be_BY@tarask.txt" \
-                    "hunspell -d be_BY@tarask-affixcompress-reenc -l be_BY@tarask.txt" \
-                    "nuspell -d be_BY@tarask-unp be_BY@tarask.txt" \
-                    "nuspell -d be_BY@tarask-unp-8bit be_BY@tarask.txt" \
-                    "nuspell -d be_BY@tarask-8bit be_BY@tarask.txt" \
-                    "nuspell -d be_BY@tarask be_BY@tarask.txt" \
-                    "nuspell -d be_BY@tarask-reenc be_BY@tarask.txt" \
-                    "nuspell -d be_BY@tarask-affixcompress be_BY@tarask.txt" \
-                    "nuspell -d be_BY@tarask-affixcompress-reenc be_BY@tarask.txt"
+                    --reference \
+                    "hunspell -d be_BY-unp -l wordlist.txt" \
+                    "hunspell -d be_BY-unp-8bit -l wordlist.txt" \
+                    "hunspell -d be_BY -l wordlist.txt" \
+                    "hunspell -d be_BY-reenc -l wordlist.txt" \
+                    "hunspell -d be_BY-reenc-8bit -l wordlist.txt" \
+                    "hunspell -d be_BY-affixcompress -l wordlist.txt" \
+                    "hunspell -d be_BY-affixcompress-reenc -l wordlist.txt" \
+                    "hunspell -d be_BY-affixcompress-reenc-8bit -l wordlist.txt" \
+                    "nuspell -d be_BY-unp wordlist.txt" \
+                    "nuspell -d be_BY-unp-8bit wordlist.txt" \
+                    "nuspell -d be_BY wordlist.txt" \
+                    "nuspell -d be_BY-reenc wordlist.txt" \
+                    "nuspell -d be_BY-reenc-8bit wordlist.txt" \
+                    "nuspell -d be_BY-affixcompress wordlist.txt" \
+                    "nuspell -d be_BY-affixcompress-reenc wordlist.txt" \
+                    "nuspell -d be_BY-affixcompress-reenc-8bit wordlist.txt" \
+                    "./dumbspell -d be_BY-unp -l wordlist.txt"
           ruby appendheapusage.rb out/benchmark.md out/heapusage.txt > out/benchmark-heapusage.md
           cp *.aff out
           cp *.dic out
-          cp be_BY@tarask.txt out
+          cp wordlist.txt out
           zip -rq results.zip out
       - uses: actions/upload-artifact@v4
         with:
