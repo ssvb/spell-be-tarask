@@ -82,10 +82,12 @@ jobs:
           ruby heapusage.rb -n be_BY@tarask-affixcompress-reenc be_BY@tarask.txt >> out/heapusage.txt
           echo "=== Measuring spellchecking performance ==="
           hyperfine --version
-          hyperfine --export-markdown out/benchmark.md \
+          wget https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
+          ./hyperfine-v1.20.0-x86_64-unknown-linux-gnu/hyperfine --export-markdown out/benchmark.md \
                     --warmup 1 \
                     "./dumbspell -d be_BY@tarask-unp -l be_BY@tarask.txt" \
-                    "--reference=hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt" \
+                    --reference "hunspell -d be_BY@tarask-unp -l be_BY@tarask.txt" \
                     "hunspell -d be_BY@tarask-unp-8bit -l be_BY@tarask.txt" \
                     "hunspell -d be_BY@tarask-8bit -l be_BY@tarask.txt" \
                     "hunspell -d be_BY@tarask -l be_BY@tarask.txt" \
