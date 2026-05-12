@@ -36,7 +36,7 @@ jobs:
           time ./hunaftool be_BY.aff be_BY.dic be_BY-reenc.aff
           time ./hunaftool be_BY-reenc.aff wordlist.txt be_BY-reenc.dic
           echo "=== Prepare an uncompressed dictionary ==="
-          grep -v -E "^[SP]FX" be_BY.aff > be_BY-unp.aff
+          grep -v -E "^([SP]FX|NEEDAFFIX|NOSUGGEST)" be_BY.aff > be_BY-unp.aff
           cat wordlist.txt | wc -l > be_BY-unp.dic
           cat wordlist.txt >> be_BY-unp.dic
           echo "=== Preparing an affixcompress dictionary ==="
