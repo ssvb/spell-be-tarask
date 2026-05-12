@@ -33,8 +33,8 @@ jobs:
           echo "=== Decode the wordlist ==="
           time ./hunaftool be_BY.aff be_BY.dic words.txt
           echo "=== Preparing a reencoded dictionary ==="
+          time ./hunaftool be_BY.aff words.txt be_BY-reenc.dic
           time ./hunaftool be_BY.aff be_BY.dic be_BY-reenc.aff
-          time ./hunaftool be_BY-reenc.aff words.txt be_BY-reenc.dic
           echo "=== Prepare an uncompressed dictionary ==="
           grep -v -E "^([SP]FX|NEEDAFFIX|NOSUGGEST)" be_BY.aff > be_BY-unp.aff
           cat words.txt | wc -l > be_BY-unp.dic
@@ -42,12 +42,13 @@ jobs:
           echo "=== Preparing an affixcompress dictionary ==="
           cp be_BY-unp.aff be_BY-affixcompress.aff
           ./affixcompress words.txt 2>/dev/null >/dev/null
+          sed -i s/FLAG\ num/FLAG\ num\\\nNEEDAFFIX\ 65000/ words.txt.aff
           cat words.txt.aff >> be_BY-affixcompress.aff
           rm words.txt.aff
           mv words.txt.dic be_BY-affixcompress.dic
           echo "=== Preparing an affixcompress optimized dictionary ==="
-          time ./hunaftool be_BY-affixcompress.aff be_BY-affixcompress.dic be_BY-affixcompress-reenc.aff
-          time ./hunaftool be_BY-affixcompress-reenc.aff words.txt be_BY-affixcompress-reenc.dic
+          time ./hunaftool be_BY-affixcompress.aff words.txt be_BY-affixcompress-reenc.dic
+          time ./hunaftool be_BY-affixcompress.aff be_BY-affixcompress-reenc.dic be_BY-affixcompress-reenc.aff
           echo "=== Preparing 8-bit CP1251 variants ==="
           cat be_BY-unp.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY-unp-8bit.aff
           cat be_BY-unp.dic | iconv -t CP1251 > be_BY-unp-8bit.dic
