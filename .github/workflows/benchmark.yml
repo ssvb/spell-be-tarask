@@ -72,31 +72,11 @@ jobs:
           cat be_BY-reenc.dic | iconv -t CP1251 > be_BY-reenc-8bit.dic
           cat be_BY-affixcompress-reenc.aff | sed 's/́//' | sed 's/ʼ/’/' | sed 's/UTF\-8/CP1251/' | iconv -t CP1251 > be_BY-affixcompress-reenc-8bit.aff
           cat be_BY-affixcompress-reenc.dic | iconv -t CP1251 > be_BY-affixcompress-reenc-8bit.dic
-          echo "=== Measuring the memory footprint ==="
-          ruby heapusage.rb be_BY-unp wordlist.txt > out/heapusage.txt
-          ruby heapusage.rb be_BY-unp-8bit wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY-reenc wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY-reenc-8bit wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY-affixcompress wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY-affixcompress-reenc wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb be_BY-affixcompress-reenc-8bit wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY-unp wordlist.txt > out/heapusage.txt
-          ruby heapusage.rb -n be_BY-unp-8bit wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY-reenc wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY-reenc-8bit wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY-affixcompress wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY-affixcompress-reenc wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb -n be_BY-affixcompress-reenc-8bit wordlist.txt >> out/heapusage.txt
-          ruby heapusage.rb -d be_BY-unp wordlist.txt >> out/heapusage.txt
-          echo "=== Measuring spellchecking performance ==="
+          echo "=== Benchmark ==="
           hyperfine --version
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
           tar -xzf hyperfine-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
-          ./hyperfine-v1.20.0-x86_64-unknown-linux-gnu/hyperfine --export-markdown out/benchmark.md \
-                    --warmup 1 \
-                    --reference \
+          PATH=./hyperfine-v1.20.0-x86_64-unknown-linux-gnu:$PATH ruby heaptrack_and_hyperfine.rb \
                     "hunspell -d be_BY-unp -l wordlist.txt" \
                     "hunspell -d be_BY-unp-8bit -l wordlist.txt" \
                     "hunspell -d be_BY -l wordlist.txt" \
@@ -113,8 +93,8 @@ jobs:
                     "nuspell -d be_BY-affixcompress wordlist.txt" \
                     "nuspell -d be_BY-affixcompress-reenc wordlist.txt" \
                     "nuspell -d be_BY-affixcompress-reenc-8bit wordlist.txt" \
-                    "./dumbspell -d be_BY-unp -l wordlist.txt"
-          ruby appendheapusage.rb out/benchmark.md out/heapusage.txt > out/benchmark-heapusage.md
+                    "./dumbspell -d be_BY-unp -l wordlist.txt" \
+                    | tee out/benchmark.md
           cp *.aff out
           cp *.dic out
           cp wordlist.txt out
