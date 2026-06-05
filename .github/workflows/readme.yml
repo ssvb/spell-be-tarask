@@ -1,0 +1,30 @@
+name: readme
+on:
+  push:
+    paths:
+      - 'README.md'
+  pull_request:
+    paths:
+      - 'README.md'
+
+jobs:
+  test:
+    name: readme check
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install RubyLLM
+        run: |
+          sudo apt-get update && sudo apt-get install ruby -y
+          sudo gem install ruby_llm -v 1.15.0
+
+      - name: Run tests
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          ruby validate_readme.rb
